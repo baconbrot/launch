@@ -25,6 +25,7 @@ from typing import Text
 from ..action import Action
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
+from ..event_handler import BaseEventHandler
 
 if False:
     from .entity import Entity  # noqa: F401
@@ -32,6 +33,7 @@ if False:
 
 action_parse_methods: Dict[str, Any] = {}
 substitution_parse_methods: Dict[str, Any] = {}
+event_handler_parse_methods: Dict[str, Any] = {}
 
 
 def instantiate_action(entity: 'Entity', parser: 'Parser') -> Action:
@@ -40,6 +42,13 @@ def instantiate_action(entity: 'Entity', parser: 'Parser') -> Action:
         raise RuntimeError('Unrecognized entity of the type: {}'.format(entity.type_name))
     action_type, kwargs = action_parse_methods[entity.type_name](entity, parser)
     return action_type(**kwargs)
+
+
+def instantiate_event_handler(type: Text, entity: 'Entity', parser: 'Parser') -> BaseEventHandler:
+    if type not in event_handler_parse_methods:
+        raise RuntimeError('Unrecognized entity of the type: {}'.format(type))
+    event_handler_type, kwargs = event_handler_parse_methods[type](entity, parser)
+    return event_handler_type(**kwargs)
 
 
 def instantiate_substitution(
@@ -130,3 +139,12 @@ def expose_action(name: Text):
     Read __expose_impl documentation.
     """
     return __expose_impl(name, action_parse_methods, 'action')
+
+
+def expose_event_handler(name: Text):
+    """
+    Return a decorator for exposing an event handler.
+
+    Read __expose_impl documentation.
+    """
+    return __expose_impl(name, event_handler_parse_methods, 'event_handler')

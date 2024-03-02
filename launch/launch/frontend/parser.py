@@ -32,10 +32,12 @@ import warnings
 
 from .entity import Entity
 from .expose import instantiate_action
+from .expose import instantiate_event_handler
 from .parse_substitution import parse_if_substitutions
 from .parse_substitution import parse_substitution
 from .parse_substitution import replace_escaped_characters
 from ..action import Action
+from ..event_handler import BaseEventHandler
 from ..invalid_launch_file_error import InvalidLaunchFileError
 from ..substitution import Substitution
 from ..utilities.type_utils import NormalizedValueType
@@ -114,6 +116,9 @@ class Parser:
     def parse_substitution(self, value: Text) -> List[Substitution]:
         """Parse a substitution."""
         return parse_substitution(value)
+
+    def parse_event_handler(self, type: Text, entity: Entity) -> BaseEventHandler:
+        return instantiate_event_handler(type, entity, self)
 
     def parse_if_substitutions(
         self, value: StrSomeValueType

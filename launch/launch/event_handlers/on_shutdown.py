@@ -24,6 +24,9 @@ from typing import Union
 from ..event import Event
 from ..event_handler import BaseEventHandler
 from ..events import Shutdown
+from ..frontend import expose_event_handler
+from ..frontend import Entity
+from ..frontend import Parser
 from ..some_entities_type import SomeEntitiesType
 from ..utilities import is_a_subclass
 
@@ -39,6 +42,7 @@ def gen_handler(
     return handler
 
 
+@expose_event_handler('on_shutdown')
 class OnShutdown(BaseEventHandler):
     """Convenience class for handling the launch shutdown event."""
 
@@ -65,6 +69,17 @@ class OnShutdown(BaseEventHandler):
         """Handle the given event."""
         super().handle(event, context)
         return self.__on_shutdown(cast(Shutdown, event), context)
+
+    @classmethod
+    def parse(
+            cls,
+            entity: Entity,
+            parser: Parser
+    ):
+        """Parse `log` tag."""
+        kwargs = {}
+        kwargs['on_shutdown'] = [parser.parse_action(e) for e in entity.children]
+        return cls, kwargs
 
     @property
     def handler_description(self) -> Text:
